@@ -1,0 +1,9 @@
+Necesidad,Requisito,Historia,Caso_Uso,Diseño,Codigo,Prueba,Estado
+Registrar informacion de camaras de la comunidad,RF-01,US-01,CU-01,DS-01,index.html,TC-01,Cubierto
+Facilitar reporte con fotografia y ubicacion,RF-02,US-02,CU-02,DS-02,index.html,TC-02,Cubierto
+Consultar y organizar reportes registrados,RF-03,US-03,CU-03,DS-03,index.html,TC-03,Cubierto
+Identificar geograficamente las camaras,RF-04,US-04,CU-04,DS-04,index.html,TC-04,Cubierto
+Administrar los propios reportes,RF-05,US-05,CU-05,DS-05,index.html,TC-05,Cubierto
+Usar el sistema en diferentes dispositivos,RNF-01,US-06,CU-06,DS-06,index.html,TC-06,Cubierto
+Proteger informacion y controlar permisos,RNF-02,US-07,CU-07,DS-07,Supabase RLS,TC-07,Cubierto
+Consultas con tiempos de respuesta adecuados,RNF-03,US-08,CU-08,DS-08,index.html,TC-08,Pendiente
