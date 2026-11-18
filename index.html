@@ -205,6 +205,18 @@
   </form>
 </dialog>
 
+<dialog id="dlgPass">
+  <h2>Crea tu nueva contraseña</h2>
+  <form id="passForm">
+    <label>Nueva contraseña (mínimo 6 caracteres)</label><input id="pNueva" type="password" minlength="6" required autocomplete="new-password">
+    <label>Repite la contraseña</label><input id="pRepite" type="password" minlength="6" required autocomplete="new-password">
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="pri" type="submit">Guardar contraseña</button>
+      <button type="button" onclick="document.getElementById('dlgPass').close()">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
 <div id="lightbox" onclick="this.style.display='none'"><img id="lbImg" alt="Foto de la cámara"></div>
 <div class="toast" id="toast"></div>
 
@@ -212,8 +224,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 /* ============ CONFIGURACIÓN: pega aquí tus datos de Supabase ============ */
-const SUPABASE_URL = "https://ddgtyekkxsezoenjvola.supabase.co";  
-const SUPABASE_KEY = "sb_publishable_lZMWfRTg1jH6fG2c5bit9A_AgOASEHj"; // 
+const SUPABASE_URL = "https://ddgtyekkxsezoenjvola.supabase.coL";   // ej: https://abcdxyz.supabase.co
+const SUPABASE_KEY = "sb_publishable_lZMWfRTg1jH6fG2c5bit9A_AgOASEHj"; // la que empieza con sb_publishable_ o la anon key
 /* ======================================================================== */
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -266,8 +278,7 @@ function pintarAuth(){
 
 sb.auth.onAuthStateChange(async (_ev, session) => {
   if (_ev === 'PASSWORD_RECOVERY') {
-    const np = prompt('Escribe tu nueva contraseña (mínimo 6 caracteres)');
-    if (np && np.length >= 6) sb.auth.updateUser({ password: np }).then(r => toast(r.error ? r.error.message : 'Contraseña actualizada.'));
+    $('dlgPass').showModal();
   }
   user = session?.user ?? null;
   pintarAuth();
@@ -556,6 +567,15 @@ async function olvide(e){
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
   toast(error ? error.message : 'Te enviamos un correo para cambiar la contraseña.');
 }
+
+/* ---------- Nueva contraseña (tras el enlace del correo) ---------- */
+$('passForm').onsubmit = async e => {
+  e.preventDefault();
+  if ($('pNueva').value !== $('pRepite').value) return toast('Las contraseñas no coinciden.');
+  const { error } = await sb.auth.updateUser({ password: $('pNueva').value });
+  if (error) return toast(error.message);
+  $('passForm').reset(); $('dlgPass').close(); toast('Contraseña actualizada.');
+};
 </script>
 </body>
-</html> 
+</html>
