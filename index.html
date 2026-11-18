@@ -46,7 +46,13 @@
   button.big{width:100%;padding:14px;font-size:1rem}
   button.danger{color:var(--bad)}
   button.sm{padding:5px 10px;font-size:.8rem}
-  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;display:none;z-index:3000;max-width:90%}
+  .toast{position:fixed;inset:auto auto 22px 50%;margin:0;transform:translateX(-50%);display:none;align-items:center;gap:10px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--cyan);padding:12px 18px 12px 12px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.55);max-width:min(92vw,460px);font-size:.92rem;z-index:3000}
+  .toast.show{display:flex;animation:tin .22s ease-out}
+  .toast .ti{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.8rem;background:var(--cyan);color:#06222a}
+  .toast.ok{border-left-color:var(--ok)}.toast.ok .ti{background:var(--ok)}
+  .toast.error{border-left-color:var(--bad)}.toast.error .ti{background:var(--bad);color:#2a0b0b}
+  @keyframes tin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+  @media(prefers-reduced-motion:reduce){.toast.show{animation:none}}
   .cam{display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--line);padding:12px 0}
   .cam:first-child{border-top:0}
   .cam img{width:84px;height:84px;object-fit:cover;border-radius:10px;cursor:pointer;flex:none;border:1px solid var(--line)}
@@ -218,7 +224,7 @@
 </dialog>
 
 <div id="lightbox" onclick="this.style.display='none'"><img id="lbImg" alt="Foto de la cámara"></div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" popover="manual" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
@@ -236,7 +242,15 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const claseEstado = e => e.replace(/\s/g,'');
 const colorEstado = {Operativa:'#22c58b','Dañada':'#f87171','Fuera de línea':'#f0b43c','Sin verificar':'#7b879f'};
 
-function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3200);}
+function toast(m, tipo){
+  tipo = tipo || (/guardad|actualizad|creada|añadid|enviamos|copiadas/i.test(m) ? 'ok' : /error|no se |no coinciden|denegad|inválid|invalid|incorrect|fail|debes|escribe/i.test(m) ? 'error' : 'info');
+  const t = $('toast');
+  t.className = 'toast show ' + tipo;
+  t.innerHTML = `<span class="ti">${{ok:'✓',error:'!',info:'i'}[tipo]}</span><span>${esc(m)}</span>`;
+  try { if (!t.matches(':popover-open')) t.showPopover(); } catch (e) {}
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = 'toast'; try { t.hidePopover(); } catch (e) {} }, tipo === 'error' ? 4800 : 3200);
+}
 
 /* ---------- Autenticación ---------- */
 function abrirAuth(modo){
